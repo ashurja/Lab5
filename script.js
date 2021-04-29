@@ -1,16 +1,48 @@
 // script.js
 
+
+
 const img = new Image(); // used to load image from <input> and draw to canvas
+
+
 
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener('load', () => {
-  // TODO
+  console.log("made it here");
+  // // TODO
+  // * toggle the relevant buttons (submit, clear, and read text buttons) by disabling or enabling them as needed
+  const canvas = document.getElementById("user-image");
+  const ctx = canvas.getContext('2d');
+  
+  
+  ctx.fillStyle= 'black';
+  const canvasWidth = 400;
+  const canvasHeight = 400
 
+  // clear the canvas
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  
+  let dimensions = getDimmensions(canvasWidth, canvasHeight, img.width, img.height);
+  console.log(dimensions);
+  
+  ctx.drawImage(img, dimensions.startX, dimensions.startY, dimensions.width, dimensions.height);
+  
   // Some helpful tips:
   // - Fill the whole Canvas with black first to add borders on non-square images, then draw on top
   // - Clear the form when a new image is selected
   // - If you draw the image to canvas here, it will update as soon as a new image is selected
 });
+
+const image_input = document.getElementById("image-input");
+image_input.addEventListener('change', () => {
+  console.log(typeof image_input.files[0]);
+  img.src = URL.createObjectURL(image_input.files[0]);
+  img.alt = image_input.files[0].name;
+});
+
 
 /**
  * Takes in the dimensions of the canvas and the new image, then calculates the new
