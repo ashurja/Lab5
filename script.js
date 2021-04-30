@@ -13,6 +13,7 @@ document.getElementById("voice-selection").disabled = false;
 img.addEventListener('load', () => {
   // // TODO
   // * toggle the relevant buttons (submit, clear, and read text buttons) by disabling or enabling them as needed
+  // * What happens if they don't upload an image
  
   
   ctx.fillStyle= 'black';
@@ -88,6 +89,9 @@ const toggle = document.getElementById("button-group");
 const top_text = document.getElementById("text-top"); 
 const bottom_text = document.getElementById("text-bottom");
 
+var utterThis = new SpeechSynthesisUtterance(); 
+var utterThisToo = new SpeechSynthesisUtterance();
+
 form.addEventListener('submit', event => {
   ctx.font = "20px Comic Sans MS";
   ctx.fillStyle = "white";
@@ -97,8 +101,10 @@ form.addEventListener('submit', event => {
 
   toggle.children[0].disabled = false; 
   toggle.children[1].disabled = false; 
-  utterThis = new SpeechSynthesisUtterance(top_text.value);
-  utterThisToo = new SpeechSynthesisUtterance(bottom_text.value);
+  // utterThis = new SpeechSynthesisUtterance(top_text.value);
+  utterThis.text=top_text.value;
+  // utterThisToo = new SpeechSynthesisUtterance(bottom_text.value);
+  utterThisToo.text = bottom_text.value;
   var selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
   for(var i = 0; i < voices.length ; i++) {
   if(voices[i].name === selectedOption) {
@@ -119,8 +125,7 @@ toggle.children[0].addEventListener('click', event => {
 
 var voiceSelect = document.getElementById("voice-selection"); 
 var voices; 
-var utterThis; 
-var utterThisToo; 
+ 
 let volume = document.querySelector("[type='range']");
 
 function populateVoiceList() {
@@ -156,18 +161,20 @@ toggle.children[1].addEventListener('click', event => {
 volume.addEventListener("change", function(e) {
   let volImg = document.getElementById("volume-group"); 
   if (volume.value >= 67 && volume.value <= 100) {
-    volImg.children[1].src = "icons/volume-level-3.svg"; 
+    volImg.children[0].src = "icons/volume-level-3.svg"; 
   }
   else if (volume.value >= 34 && volume.value <= 66) {
-    volImg.children[1].src = "icons/volume-level-2.svg"; 
+    volImg.children[0].src = "icons/volume-level-2.svg"; 
   }
   else if (volume.value >= 1 && volume.value <= 33) {
-    volImg.children[1].src = "icons/volume-level-1.svg"; 
+    volImg.children[0].src = "icons/volume-level-1.svg"; 
   }
   else {
-    volImg.children[1].src = "icons/volume-level-0.svg"; 
+    volImg.children[0].src = "icons/volume-level-0.svg"; 
   }
   console.log(volImg.children[1].src); 
+
+  // TODO: What happens when you don't have an image uploaded yet
   utterThis.volume = e.currentTarget.value / 100;
   utterThisToo.volume = e.currentTarget.value / 100;
-  }); 
+}); 
