@@ -3,21 +3,19 @@
 
 
 const img = new Image(); // used to load image from <input> and draw to canvas
+const canvas = document.getElementById("user-image");
+const ctx = canvas.getContext('2d');
+const canvasWidth = 400;
+const canvasHeight = 400;
 
-
-
+document.getElementById("voice-selection").disabled = false;
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener('load', () => {
-  console.log("made it here");
   // // TODO
   // * toggle the relevant buttons (submit, clear, and read text buttons) by disabling or enabling them as needed
-  const canvas = document.getElementById("user-image");
-  const ctx = canvas.getContext('2d');
-  
+ 
   
   ctx.fillStyle= 'black';
-  const canvasWidth = 400;
-  const canvasHeight = 400
 
   // clear the canvas
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -38,7 +36,7 @@ img.addEventListener('load', () => {
 
 const image_input = document.getElementById("image-input");
 image_input.addEventListener('change', () => {
-  console.log(typeof image_input.files[0]);
+// console.log(typeof image_input.files[0]);
   img.src = URL.createObjectURL(image_input.files[0]);
   img.alt = image_input.files[0].name;
 });
@@ -83,3 +81,93 @@ function getDimmensions(canvasWidth, canvasHeight, imageWidth, imageHeight) {
 
   return { 'width': width, 'height': height, 'startX': startX, 'startY': startY }
 }
+
+//const form = document.querySelector('button[type="submit"]'); 
+const form = document.getElementById("generate-meme"); 
+const toggle = document.getElementById("button-group");
+const top_text = document.getElementById("text-top"); 
+const bottom_text = document.getElementById("text-bottom");
+
+form.addEventListener('submit', event => {
+  ctx.font = "20px Comic Sans MS";
+  ctx.fillStyle = "white";
+  //ctx.textAlign = "center";
+  ctx.fillText(top_text.value, canvasWidth - 390, canvasHeight - 350);
+  ctx.fillText(bottom_text.value, canvasWidth - 390, canvasHeight - 10);
+
+  toggle.children[0].disabled = false; 
+  toggle.children[1].disabled = false; 
+  utterThis = new SpeechSynthesisUtterance(top_text.value);
+  utterThisToo = new SpeechSynthesisUtterance(bottom_text.value);
+  var selectedOption = voiceSelect.selectedOptions[0].getAttribute('data-name');
+  for(var i = 0; i < voices.length ; i++) {
+  if(voices[i].name === selectedOption) {
+    utterThis.voice = voices[i];
+    utterThisToo.voice = voices[i]; 
+  }
+}
+  event.preventDefault();
+}); 
+
+toggle.children[0].addEventListener('click', event => {
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  top_text.value = ""; 
+  bottom_text.value = ""; 
+  toggle.children[0].disabled = true; 
+  toggle.children[1].disabled = true; 
+});
+
+var voiceSelect = document.getElementById("voice-selection"); 
+var voices; 
+var utterThis; 
+var utterThisToo; 
+let volume = document.querySelector("[type='range']");
+
+function populateVoiceList() {
+  if(typeof speechSynthesis === 'undefined') {
+    return;
+  }
+  voices = speechSynthesis.getVoices();
+  for(var i = 0; i < voices.length; i++) {
+    var option = document.createElement('option');
+    option.textContent = voices[i].name + ' (' + voices[i].lang + ')';
+
+    if(voices[i].default) {
+      option.textContent += ' -- DEFAULT';
+      voiceSelect.remove(0); 
+    }
+
+    option.setAttribute('data-lang', voices[i].lang);
+    option.setAttribute('data-name', voices[i].name);
+    voiceSelect.appendChild(option);
+  }
+}
+
+populateVoiceList();
+if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoiceList;
+}
+
+toggle.children[1].addEventListener('click', event => {
+  speechSynthesis.speak(utterThis);
+  speechSynthesis.speak(utterThisToo); 
+});
+
+volume.addEventListener("change", function(e) {
+  let volImg = document.getElementById("volume-group"); 
+  if (volume.value >= 67 && volume.value <= 100) {
+    volImg.children[1].src = "icons/volume-level-3.svg"; 
+  }
+  else if (volume.value >= 34 && volume.value <= 66) {
+    volImg.children[1].src = "icons/volume-level-2.svg"; 
+  }
+  else if (volume.value >= 1 && volume.value <= 33) {
+    volImg.children[1].src = "icons/volume-level-1.svg"; 
+  }
+  else {
+    volImg.children[1].src = "icons/volume-level-0.svg"; 
+  }
+  console.log(volImg.children[1].src); 
+  utterThis.volume = e.currentTarget.value / 100;
+  utterThisToo.volume = e.currentTarget.value / 100;
+  }); 
